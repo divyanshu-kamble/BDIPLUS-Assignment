@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 'worker-app'
+  labels:
+    tags: voting-application
+
+spec:
+  template:
+    metadata:
+      name: 'worker-app'
+      labels:
+        app: 'worker-app'
+
+    spec:
+      containers:
+      - name: worker
+        image: divyanshuk/worker:latest
+        resources:
+          #The amount of resources asked by default 
+          requests:
+            cpu: '200m'
+            memory: '128Mi'
+          #The maximum amount of resources it can utilize
+          limits:
+            cpu: '500m'
+            memory: '512Mi'
+
+
+  replicas: 2
+  selector:
+    matchLabels:
+      app: 'worker-app'

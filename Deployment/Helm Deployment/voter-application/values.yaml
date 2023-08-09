@@ -1,0 +1,105 @@
+# Default values for voting-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+
+tags: voting-application
+
+image:
+  pullPolicy: Always
+
+deploy:
+  vote_app:
+    image:
+      repository: divyanshuk/vote
+      imageTag: 83
+      pullPolicy: Always
+      appName: vote-app
+      imageName: vote
+
+  worker_app:
+    image:
+      repository: divyanshuk/worker
+      imageTag: 57
+      pullPolicy: IfNotPresent
+      appName: worker-app
+      imageName: worker
+
+  result_app:
+    image:
+      repository: divyanshuk/result
+      imageTag: 17
+      pullPolicy: IfNotPresent
+      appName: result-app
+      imageName: result
+
+  redis_app:
+    image:
+      repository: redis
+      imageTag: latest
+      pullPolicy: IfNotPresent
+      appName: redis-app
+      imageName: redis
+
+  postgres_app:
+    image:
+      repository: postgres
+      imageTag: 15-alpine
+      pullPolicy: IfNotPresent
+      appName: postgres-app
+      imageName: postgres
+
+service:
+  vote_app:
+    type: NodePort
+    port: 80
+    targetPort: 80
+    nodePort: 30000
+    name: vote-service
+
+  result_app:
+    type: NodePort
+    nodePort: 30001
+    port: 80
+    targetPort: 80
+    name: result-service
+
+  redis_app:
+    name: redis
+    targetPort: 6379
+    port: 6379
+
+
+  postgres_app:
+    name: db
+    targetPort: 5432
+    port: 5432
+
+ConfigMap:
+  postgres_app:
+    name: postgres-configmap
+    POSTGRES_DB: db
+    POSTGRES_USER: postgres
+secrets:
+  postgres_app:
+    name: postgres-secret
+    POSTGRES_PASSWORD: cGFzc3dvcmQ=
+
+
+ingress:
+  enabled: false
+
+
+resources: {}
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
+

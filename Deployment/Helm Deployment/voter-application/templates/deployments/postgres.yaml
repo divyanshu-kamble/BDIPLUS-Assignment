@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: {{ .Values.deploy.postgres_app.image.appName }}
+  labels:
+    tags: {{ .Values.tags }}
+    app: {{ .Values.deploy.postgres_app.image.appName }}
+spec:
+  template:
+    metadata:
+      name: {{ .Values.deploy.postgres_app.image.appName }}
+      labels:
+        app: {{ .Values.deploy.postgres_app.image.appName }}
+    spec:
+      containers:
+      - name: {{ .Values.deploy.postgres_app.image.imageName }}
+        image: "{{ .Values.deploy.postgres_app.image.repository }}:{{ .Values.deploy.postgres_app.image.imageTag }}"
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-configmap
+              key: POSTGRES_DB
+
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-configmap
+              key: POSTGRES_USER
+
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deploy.postgres_app.image.appName }}

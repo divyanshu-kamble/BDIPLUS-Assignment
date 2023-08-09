@@ -1,0 +1,21 @@
+pipeline {
+  agent { label 'Deploy'}
+  stages {
+    stage('creating Namespace') {
+      steps {
+        sh '''
+            alias k=kubectl
+            k create namespace dev
+            k create namespace prod
+        '''
+      }
+    }
+    stage('Helm Deployment') {
+      steps {
+        sh '''
+           helm upgrade --install voting-app voting-application/ --values voting-application/values.yaml --set deploy.vote_app.image.imageTag=83 --set deploy.result_app.image.imageTag=17 --namespace dev
+        '''
+      }
+    }
+  }
+}

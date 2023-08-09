@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.vote_app.name }}
+  labels:
+    app: {{ .Values.deploy.vote_app.image.appName }}
+    tags: {{ .Values.tags }}
+spec:
+  type: {{ .Values.service.vote_app.type }}
+  ports:
+  - port: {{ .Values.service.vote_app.port }}
+    targetPort: {{ .Values.service.vote_app.targetPort }}
+    nodePort: {{ .Values.service.vote_app.nodePort}}
+
+  selector:
+    app: {{ .Values.deploy.vote_app.image.appName }}

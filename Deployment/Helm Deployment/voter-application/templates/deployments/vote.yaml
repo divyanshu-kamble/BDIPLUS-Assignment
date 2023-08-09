@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deploy.vote_app.image.appName }}
+  labels:
+    tags: {{ .Values.tags }}
+    app: {{ .Values.deploy.vote_app.image.appName }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deploy.vote_app.image.appName }}
+  template:
+    metadata:
+      name: {{ .Values.deploy.vote_app.image.appName }}
+      labels:
+        app: {{ .Values.deploy.vote_app.image.appName }}
+
+    spec:
+      containers:
+      - name: {{ .Values.deploy.vote_app.image.imageName }}
+        image: "{{ .Values.deploy.vote_app.image.repository }}:{{ .Values.deploy.vote_app.image.imageTag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}

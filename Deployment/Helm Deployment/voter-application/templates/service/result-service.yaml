@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.result_app.name }}
+  labels:
+    app: {{ .Values.deploy.result_app.image.appName }}
+    tags: {{ .Values.tags }}
+spec:
+  type: {{ .Values.service.result_app.type }}
+  ports:
+  - port: {{ .Values.service.result_app.port }}
+    targetPort: {{ .Values.service.result_app.targetPort }}
+    nodePort: {{ .Values.service.result_app.nodePort}}
+
+  selector:
+    app: {{ .Values.deploy.result_app.image.appName }}

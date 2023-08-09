@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deploy.redis_app.image.appName }}
+  labels:
+    tags: {{ .Values.tags }}
+    app: {{ .Values.deploy.redis_app.image.appName }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deploy.redis_app.image.appName }}
+  template:
+    metadata:
+      name: {{ .Values.deploy.redis_app.image.appName }}
+      labels:
+        app: {{ .Values.deploy.redis_app.image.appName }}
+
+    spec:
+      containers:
+      - name: {{ .Values.deploy.redis_app.image.imageName }}
+        image: "{{ .Values.deploy.redis_app.image.repository }}:{{ .Values.deploy.redis_app.image.imageTag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+

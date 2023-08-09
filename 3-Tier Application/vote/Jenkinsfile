@@ -1,0 +1,48 @@
+pipeline {
+  agent { label 'CI'}
+  stages {
+    stage('installing dependencies') {
+      steps {
+        sh '''
+        cd vote && ls -l
+        pip3 install -r requirements.txt
+        '''
+      }
+    }
+    stage('Sonarqube scan') {
+      steps {
+      withSonarQubeEnv('sonarqube ec2') {
+      sh '''
+          cd vote
+          sonar-scanner
+      '''
+      }
+      }
+    }
+    stage('Building Docker Images') {
+      steps {
+        sh '''
+          cd vote
+          sudo docker build -t divyanshuk/vote:$BUILD_NUMBER -t divyanshuk/vote:latest .
+        '''
+      }
+    }
+    stage("Docker Image Security Scan") {
+      steps{
+        sh ' trivy image -s HIGH -s CRITICAL --exit-code 0 divyanshuk/vote:$BUILD_NUMBER'
+        }
+    }
+    stage("Docker image to Registry") {
+       steps{
+
+         withCredentials([usernamePassword(credentialsId: 'docker', passwordVariable: 'password', usernameVariable: 'username')]) {
+              sh '''
+                  sudo docker login -u $username -p $password
+                  sudo docker push divyanshuk/vote:$BUILD_NUMBER 
+                  sudo docker push divyanshuk/vote:latest 
+              '''
+          }
+        }
+    }
+  }
+}

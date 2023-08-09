@@ -1,0 +1,56 @@
+pipeline {
+  agent { label 'Master'}
+  stages {
+    stage('Restore') {
+      steps {
+        sh "dotnet restore ./worker/Worker.csproj"
+      }
+    }
+        stage('Clean') {
+      steps {
+        sh "dotnet clean ./worker/Worker.csproj"
+      }
+    }
+        stage('Build') {
+      steps {
+        sh "dotnet build ./worker/Worker.csproj"
+      }
+    }
+    stage('Sonarqube scan') {
+      steps {
+      withSonarQubeEnv('sonarqube ec2') {
+      sh '''
+          cd worker
+          sonar-scanner
+      '''
+      }
+      }
+    }
+
+    stage('Building Docker Images') {
+      steps {
+        sh '''
+        cd worker
+        sudo docker buildx build --no-cache --build-arg TARGETPLATFORM=linux/amd64 -t divyanshuk/worker:$BUILD_NUMBER -t divyanshuk/worker:latest .
+        '''
+      }
+    }
+    stage("Docker Image Security Scan") {
+      steps{
+        sh 'trivy image -s HIGH -s CRITICAL --exit-code 0 divyanshuk/worker:$BUILD_NUMBER'
+      }
+    }
+    stage("Docker image to Registry") {
+       steps{
+         withCredentials([usernamePassword(credentialsId: 'docker', passwordVariable: 'password', usernameVariable: 'username')]) {
+              sh '''
+                  sudo docker login -u $username -p $password
+                  sudo docker push divyanshuk/worker:$BUILD_NUMBER 
+                  sudo docker push divyanshuk/worker:latest 
+              '''
+          }
+       }
+    }
+
+  }
+}

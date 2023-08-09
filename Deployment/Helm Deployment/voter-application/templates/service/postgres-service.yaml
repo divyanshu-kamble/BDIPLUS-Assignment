@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.postgres_app.name }}
+  labels:
+    app: {{ .Values.deploy.postgres_app.image.appName }}
+    tags: {{ .Values.tags }}
+spec:
+  ports:
+  - port: {{ .Values.service.postgres_app.port }}
+    targetPort: {{ .Values.service.postgres_app.targetPort }}
+
+  selector:
+    app: {{ .Values.deploy.postgres_app.image.appName}}

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.ConfigMap.postgres_app.name }}
+  labels:
+    app: {{ .Values.deploy.postgres_app.image.appName }}
+    tags: {{ .Values.tags }}
+data:
+  POSTGRES_DB: {{ .Values.ConfigMap.postgres_app.POSTGRES_DB }}
+  POSTGRES_USER: {{ .Values.ConfigMap.postgres_app.POSTGRES_USER }}

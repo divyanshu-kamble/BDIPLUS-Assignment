@@ -1,0 +1,14 @@
+pipeline {
+  agent { label 'Deploy'}
+  stages {
+    stage('kubernetes') {
+      steps {
+        sh '''
+            pwd
+            cd postgres
+            kubectl apply -f ./kubernetes
+        '''
+      }
+    }
+  }
+}
