@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: vote
-        image: abhijeetka/vote:07
+        image: divyanshuk/vote:latest
 
   replicas: 2
   selector:

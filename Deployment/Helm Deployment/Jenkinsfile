@@ -1,19 +1,30 @@
 pipeline {
   agent { label 'Deploy'}
+  parameters {
+    string(name: 'vote_app_tag')
+    string(name: 'result_app_tag')
+    string(name: 'worker_app_tag') }
+  environment {
+        NAMESPACE = 'dev'
+    }
   stages {
-    stage('creating Namespace') {
+    stage('Checking namespace') {
       steps {
         sh '''
-            alias k=kubectl
-            k create namespace dev
-            k create namespace prod
+          alias k=kubectl 
+          value=$(k get namespace | grep ${NAMESPACE}-voting-app)
+          if [ -z "$value" ]; then
+          k create namespace ${NAMESPACE}-voting-app
+          else
+          echo "namespace ${NAMESPACE}-voting-app exists"
+          fi
         '''
       }
-    }
+        }
     stage('Helm Deployment') {
       steps {
         sh '''
-           helm upgrade --install voting-app voting-application/ --values voting-application/values.yaml --set deploy.vote_app.image.imageTag=83 --set deploy.result_app.image.imageTag=17 --namespace dev
+           helm upgrade --install voting-app /Deployments/helm-deployments/voting-application/ --atomic --values ${WORKSPACE}/environments/DEV/helm-deployments/voting-application/values.yaml --set deploy.vote_app.image.imageTag=${vote_app_tag} --set deploy.result_app.image.imageTag=${result_app_tag} --set deploy.worker_app.image.imageTag=${worker_app_tag} --namespace ${NAMESPACE}-voting-app
         '''
       }
     }

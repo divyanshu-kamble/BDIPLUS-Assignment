@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: result
-        image: divyanshuk/result:45
+        image: divyanshuk/result:latest
         env:
         - name: context_path
           value: /result
